@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Träningsschema</title>
+  <link rel="stylesheet" href="style.css">
+  <script src="script.js" defer></script>
+</head>
+
+<body>
+  <div class="container">
+    <h1>Träningsschema</h1>
+    <form class="workout-form">
+      <input type="text" class="input workout-name" placeholder="Träningspass (t.ex. löpning, styrka)" required>
+      <input type="date" class="input workout-date" required>
+      <input type="number" class="input workout-weight" placeholder="Vikt (kg)" min="0" step="1">
+      <input type="number" class="input workout-sets" placeholder="Antal set" min="1" step="1">
+      <input type="number" class="input workout-distance" placeholder="Löpsträcka (km)" min="0" step="0.1">
+      <button type="submit" class="submit-button">Lägg till pass</button>
+    </form>
+    <ul class="workout-list"></ul>
+  </div>
+</body>
+</html>
