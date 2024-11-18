@@ -1,85 +1,70 @@
-// Hämtar elementen från DOM
-const workoutForm = document.querySelector('.workout-form');
-const workoutList = document.querySelector('.workout-list');
+// Hitta elementen i HTML
+const workoutForm = document.querySelector('.workout-form'); // Formuläret
+const workoutList = document.querySelector('.workout-list'); // Listan för träningspass
 
-// Laddar träningspassen från localStorage vid sidladdning
-document.addEventListener('DOMContentLoaded', loadWorkouts);
+// När sidan laddas, visa sparade träningspass
+document.addEventListener('DOMContentLoaded', function () {
+  const workouts = JSON.parse(localStorage.getItem('workouts')) || []; // Hämta från localStorage eller tom lista
+  workouts.forEach(function (workout) {
+    addWorkoutToDOM(workout); // Lägg till varje pass i listan
+  });
+});
 
-// Event för att lägga till träningspass
+// När formuläret skickas
 workoutForm.addEventListener('submit', function (event) {
-  event.preventDefault();
+  event.preventDefault(); // Hindra att sidan laddas om
 
-  // Hämtar värden från formuläret
-  const workoutName = document.querySelector('.workout-name').value;
-  const workoutDate = document.querySelector('.workout-date').value;
-  const workoutWeight = document.querySelector('.workout-weight').value;
-  const workoutSets = document.querySelector('.workout-sets').value;
-  const workoutDistance = document.querySelector('.workout-distance').value;
+  // Hämta värden från formuläret
+  const name = document.querySelector('.workout-name').value;
+  const date = document.querySelector('.workout-date').value;
 
-  // Skapar objekt för träningspass
-  const workout = {
-    name: workoutName,
-    date: workoutDate,
-    weight: workoutWeight,
-    sets: workoutSets,
-    distance: workoutDistance,
-  };
+  // Skapa ett träningspass-objekt
+  const workout = { name: name, date: date };
 
-  // Lägg till träningspass till DOM och localStorage
+  // Lägg till träningspass i listan och spara
   addWorkoutToDOM(workout);
   saveWorkoutToLocalStorage(workout);
 
-  // Tömmer formuläret
+  // Rensa formuläret
   workoutForm.reset();
 });
 
-// Funktion för att lägga till träningspass till DOM
+// Funktion för att lägga till träningspass i listan (DOM)
 function addWorkoutToDOM(workout) {
-  let workoutDetails = `${workout.name} - ${workout.date}`;
-  if (workout.weight) workoutDetails += ` | Vikt: ${workout.weight} kg`;
-  if (workout.sets) workoutDetails += ` | Set: ${workout.sets}`;
-  if (workout.distance) workoutDetails += ` | Distans: ${workout.distance} km`;
-
-  // Skapar listobjekt för träningspasset
+  // Skapa en ny listpunkt
   const li = document.createElement('li');
-  li.innerHTML = `
-    ${workoutDetails}
-    <button onclick="removeWorkout(this)">Ta bort</button>
-  `;
+  li.textContent = `${workout.name} - ${workout.date}`; // Visa träningspassets namn och datum
 
-  // Lägg till nytt pass till listan
+  // Skapa en "Ta bort"-knapp
+  const removeButton = document.createElement('button');
+  removeButton.textContent = 'Ta bort';
+  removeButton.addEventListener('click', function () {
+    removeWorkout(li, workout); // Ta bort passet när man klickar
+  });
+
+  // Lägg till knappen till listpunkten
+  li.appendChild(removeButton);
+
+  // Lägg till listpunkten i listan
   workoutList.appendChild(li);
 }
 
-// Sparar träningspass till localStorage
+// Funktion för att spara träningspass till localStorage
 function saveWorkoutToLocalStorage(workout) {
-  let workouts = JSON.parse(localStorage.getItem('workouts')) || [];
-  workouts.push(workout);
-  localStorage.setItem('workouts', JSON.stringify(workouts));
+  const workouts = JSON.parse(localStorage.getItem('workouts')) || []; // Hämta lista eller börja med tom
+  workouts.push(workout); // Lägg till nytt pass
+  localStorage.setItem('workouts', JSON.stringify(workouts)); // Spara tillbaka till localStorage
 }
 
-// Laddar träningspassen från localStorage
-function loadWorkouts() {
-  const workouts = JSON.parse(localStorage.getItem('workouts')) || [];
-  workouts.forEach(addWorkoutToDOM);
-}
-
-// Funktion för att ta bort träningspass från DOM och localStorage
-function removeWorkout(button) {
-  const li = button.parentElement;
-  const workoutText = li.innerText.replace(" Ta bort", ""); // Ta bort "Ta bort" från texten
-
-  // Tar bort från DOM
+// Funktion för att ta bort träningspass
+function removeWorkout(li, workout) {
+  // Ta bort från listan i DOM
   workoutList.removeChild(li);
 
-  // Tar bort från localStorage
-  let workouts = JSON.parse(localStorage.getItem('workouts')) || [];
-  workouts = workouts.filter(workout => {
-    let workoutDetails = `${workout.name} - ${workout.date}`;
-    if (workout.weight) workoutDetails += ` | Vikt: ${workout.weight} kg`;
-    if (workout.sets) workoutDetails += ` | Set: ${workout.sets}`;
-    if (workout.distance) workoutDetails += ` | Distans: ${workout.distance} km`;
-    return workoutDetails !== workoutText;
+  // Ta bort från localStorage
+  const workouts = JSON.parse(localStorage.getItem('workouts')) || [];
+  const updatedWorkouts = workouts.filter(function (item) {
+    return item.name !== workout.name || item.date !== workout.date; // Matcha både namn och datum
   });
-  localStorage.setItem('workouts', JSON.stringify(workouts));
+  localStorage.setItem('workouts', JSON.stringify(updatedWorkouts)); // Spara uppdaterad lista
 }
